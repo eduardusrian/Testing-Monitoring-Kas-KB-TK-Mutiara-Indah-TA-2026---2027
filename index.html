@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitoring Kas - TK/KB Mutiara Indah</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #f5f9fc;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0, 20, 30, 0.08);
+            overflow: hidden;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 32px;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b2b3d;
+        }
+        .logo span {
+            color: #2a9d8f;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+        .nav-links li {
+            font-weight: 600;
+            color: #5b6f7e;
+            cursor: pointer;
+            padding: 8px 0;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+        .nav-links li.active {
+            color: #0b2b3d;
+            border-bottom-color: #2a9d8f;
+        }
+        .nav-links li:hover {
+            color: #0b2b3d;
+        }
+        .nav-links li.hidden-nav {
+            display: none;
+        }
+        .nav-links li.hidden-nav.show {
+            display: block;
+        }
+
+        .lock-icon {
+            color: #5b6f7e;
+            font-size: 22px;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: #f0f4f8;
+            border: 1px solid #e2e8f0;
+        }
+        .lock-icon:hover {
+            background: #e2e8f0;
+            transform: scale(1.05);
+        }
+        .lock-icon.unlocked {
+            color: #2a9d8f;
+            border-color: #2a9d8f;
+            background: #e6f4f2;
+        }
+
+        .page {
+            padding: 28px 32px 40px;
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            0% { opacity: 0.4; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .password-modal.open {
+            display: flex;
+        }
+        .password-box {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+        .password-box h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #0b2b3d;
+        }
+        .password-box p {
+            color: #6f7e8c;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .password-box input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #d8e0e8;
+            border-radius: 14px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            transition: 0.3s;
+        }
+        .password-box input:focus {
+            outline: none;
+            border-color: #2a9d8f;
+        }
+        .password-box .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+        .password-box .btn-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .password-box .btn-unlock {
+            background: #2a9d8f;
+            color: white;
+        }
+        .password-box .btn-unlock:hover {
+            background: #21867a;
+        }
+        .password-box .btn-cancel {
+            background: #f0f4f8;
+            color: #5b6f7e;
+        }
+        .password-box .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+        .password-box .error-msg {
+            color: #e76f51;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .password-box .error-msg.show {
+            display: block;
+        }
+
+        /* Summary Cards - Main landing view */
+        .landing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            padding: 20px 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .landing-card {
+            background: white;
+            padding: 32px 28px;
+            border-radius: 24px;
+            border: 2px solid #e9edf2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+        }
+        .landing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        .landing-card .card-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .landing-card .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b2b3d;
+            margin-bottom: 4px;
+        }
+        .landing-card .card-subtitle {
+            font-size: 14px;
+            color: #6f7e8c;
+            margin-bottom: 16px;
+        }
+        .landing-card .card-amount {
+            font-size: 32px;
+            font-weight: 700;
+            padding: 12px;
+            border-radius: 16px;
+            background: #f8fafc;
+        }
+        .landing-card .card-amount.positive { color: #2a9d8f; }
+        .landing-card .card-amount.negative { color: #e76f51; }
+        .landing-card.kas-card {
+            border-color: #2a9d8f;
+            background: linear-gradient(145deg, #ffffff, #f6fffc);
+        }
+        .landing-card.kas-card .card-icon { color: #2a9d8f; }
+        .landing-card.rekreasi-card {
+            border-color: #9b59b6;
+            background: linear-gradient(145deg, #ffffff, #fcf5ff);
+        }
+        .landing-card.rekreasi-card .card-icon { color: #9b59b6; }
+        .landing-card .click-hint {
+            font-size: 12px;
+            color: #aab3bc;
+            margin-top: 12px;
+            opacity: 0.7;
+        }
+
+        /* Detailed Dashboard - hidden initially */
+        .dashboard-wrapper {
+            display: none;
+        }
+        .dashboard-wrapper.visible {
+            display: block;
+            animation: fade 0.3s ease;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #5b6f7e;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: 0.2s;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background: #f0f4f8;
+        }
+
+        /* Single dashboard view - no tabs */
+        .single-dashboard {
+            display: none;
+        }
+        .single-dashboard.active {
+            display: block;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .score-card {
+            background: white;
+            padding: 20px 16px;
+            border-radius: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+            border: 1px solid #e9edf2;
+            text-align: center;
+        }
+        .score-card .label {
+            color: #6f7e8c;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .score-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0b2b3d;
+            margin-top: 6px;
+        }
+        .score-card .value.positive { color: #2a9d8f; }
+        .score-card .value.negative { color: #e76f51; }
+
+        .progress-section {
+            background: #fafcff;
+            border-radius: 20px;
+            padding: 20px 24px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 32px;
+        }
+        .progress-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3b4a;
+            margin-bottom: 16px;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #eef2f6;
+        }
+        .progress-item .name {
+            width: 120px;
+            font-weight: 600;
+            color: #1a3340;
+            font-size: 14px;
+        }
+        .progress-item .month-container {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+        .progress-item .month-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            border: 2px solid #dce2ea;
+            background: #f5f7fa;
+            color: #aab3bc;
+            transition: 0.2s;
+        }
+        .progress-item .month-box.paid {
+            background: #2a9d8f;
+            border-color: #2a9d8f;
+            color: white;
+        }
+        .progress-item .month-box.paid::after {
+            content: "✓";
+        }
+        .progress-item .status {
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 140px;
+            text-align: right;
+            color: #5b6f7e;
+        }
+        .progress-item .status .sisa {
+            color: #e76f51;
+            font-weight: 700;
+        }
+        .progress-item .status .lunas-text {
+            color: #2a9d8f;
+            font-weight: 700;
+        }
+        .progress-item .status .bulan-text {
+            font-weight: 400;
+            font-size: 12px;
+            color: #8899a8;
+        }
+
+        .table-wrap {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e9edf2;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            background: #f8fafc;
+            color: #3b5565;
+            font-weight: 600;
+        }
+        td {
+            padding: 14px 16px;
+            border-top: 1px solid #edf2f7;
+            color: #1e3b4a;
+        }
+        .photo-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid #dce2ea;
+            transition: 0.2s;
+        }
+        .photo-thumb:hover {
+            opacity: 0.85;
+            transform: scale(1.02);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal.open {
+            display: flex;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            border: 4px solid white;
+        }
+        .modal .close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            font-weight: 300;
+            transition: 0.2s;
+        }
+        .modal .close:hover {
+            transform: scale(1.2);
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 30px;
+            border: 1px solid #e9edf2;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .form-card h3 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            color: #0b2b3d;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #1e3b4a;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d8e0e8;
+            border-radius: 14px;
+            font-size: 14px;
+            background: #fafcff;
+            transition: 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2a9d8f;
+            background: white;
+        }
+        .form-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        .btn {
+            background: #2a9d8f;
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #21867a;
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none;
+        }
+
+        .management-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+        @media (max-width: 800px) {
+            .management-grid { grid-template-columns: 1fr; }
+            .navbar { flex-direction: column; align-items: stretch; gap: 12px; }
+            .nav-links { justify-content: space-around; }
+            .progress-item .month-box {
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .progress-item .name {
+                width: 100px;
+                font-size: 13px;
+            }
+            .landing-grid { grid-template-columns: 1fr; }
+        }
+
+        .student-list {
+            margin-top: 20px;
+            background: #fafcff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            border: 1px solid #e9edf2;
+        }
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f5;
+        }
+        .student-item:last-child { border-bottom: none; }
+        .student-item .total {
+            font-weight: 600;
+            color: #0b2b3d;
+        }
+
+        .success-msg {
+            background: #e2f3f0;
+            color: #106b5e;
+            padding: 10px 16px;
+            border-radius: 40px;
+            margin-top: 12px;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .target-setting {
+            background: #f0f7fa;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .target-setting label {
+            font-weight: 600;
+            color: #1e3b4a;
+            font-size: 14px;
+        }
+        .target-setting input {
+            padding: 10px 14px;
+            border: 1px solid #d8e0e8;
+            border-radius: 12px;
+            font-size: 14px;
+            width: 180px;
+            background: white;
+        }
+        .target-setting .btn-small {
+            background: #2a9d8f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .target-setting .btn-small:hover {
+            background: #21867a;
+        }
+        .target-info {
+            font-size: 14px;
+            color: #3b5565;
+            margin-left: auto;
+        }
+        .error-msg {
+            color: #c0392b;
+            margin-top: 8px;
+            display: block;
+        }
+        .loading-text {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .category-kas {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        .category-rekreasi {
+            background: #f3e5f5;
+            color: #4a148c;
+        }
+
+        .student-payment-detail {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #5b6f7e;
+        }
+        .student-payment-detail span {
+            background: #f0f4f8;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+        .student-payment-detail .kas-amount {
+            color: #0d47a1;
+        }
+        .student-payment-detail .rekreasi-amount {
+            color: #4a148c;
+        }
+        .dashboard-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b2b3d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dashboard-title .title-icon {
+            font-size: 28px;
+        }
+        .dashboard-title.kas-title .title-icon { color: #2a9d8f; }
+        .dashboard-title.rekreasi-title .title-icon { color: #9b59b6; }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo"><h1>🏫 Mutiara <span>Indah </span>2026 - 2027</span></h1></div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <ul class="nav-links">
+                <li class="active" data-page="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</li>
+                <li class="hidden-nav" data-page="input"><i class="fas fa-pen"></i> Input</li>
+                <li class="hidden-nav" data-page="management"><i class="fas fa-users-cog"></i> Management</li>
+            </ul>
+            <i class="fas fa-lock lock-icon" id="lockIcon" title="Klik untuk membuka menu Input & Management"></i>
+        </div>
+    </nav>
+
+    <!-- PASSWORD MODAL -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-box">
+            <h3><i class="fas fa-lock"></i> Akses Terbatas</h3>
+            <p>Masukkan password untuk mengakses menu Input & Management</p>
+            <input type="password" id="passwordInput" placeholder="Masukkan password..." />
+            <div class="error-msg" id="passwordError">❌ Password salah! Coba lagi.</div>
+            <div class="btn-group">
+                <button class="btn-cancel" id="cancelPassword">Batal</button>
+                <button class="btn-unlock" id="unlockBtn"><i class="fas fa-unlock"></i> Buka</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DASHBOARD ================= -->
+    <div id="dashboard" class="page active">
+        
+        <!-- LANDING VIEW - 2 Score Cards -->
+        <div id="landingView" class="landing-grid">
+            <div class="landing-card kas-card" data-category="kas">
+                <div class="card-icon">💰</div>
+                <div class="card-title">Saldo Akhir Kas</div>
+                <div class="card-subtitle">Total pemasukan - pengeluaran kas</div>
+                <div class="card-amount positive" id="landingSaldoKas">Rp 0</div>
+                <div class="click-hint"><i class="fas fa-arrow-right"></i> Klik untuk lihat detail</div>
+            </div>
+            <div class="landing-card rekreasi-card" data-category="rekreasi">
+                <div class="card-icon">🎯</div>
+                <div class="card-title">Saldo Akhir Rekreasi</div>
+                <div class="card-subtitle">Total pemasukan - pengeluaran rekreasi</div>
+                <div class="card-amount positive" id="landingSaldoRekreasi">Rp 0</div>
+                <div class="click-hint"><i class="fas fa-arrow-right"></i> Klik untuk lihat detail</div>
+            </div>
+        </div>
+
+        <!-- DETAILED DASHBOARD VIEW - Single dashboard only -->
+        <div id="detailView" class="dashboard-wrapper">
+            <button class="back-btn" id="backToLanding"><i class="fas fa-arrow-left"></i> Kembali ke Ringkasan</button>
+
+            <!-- Single Dashboard Kas -->
+            <div id="single-dashboard-kas" class="single-dashboard">
+                <div class="dashboard-title kas-title">
+                    <span class="title-icon">💰</span> Dashboard Kas
+                </div>
+                <div class="score-grid">
+                    <div class="score-card"><div class="label">💰 Uang Masuk</div><div class="value positive" id="totalInKas">Rp 0</div></div>
+                    <div class="score-card"><div class="label">💸 Uang Keluar</div><div class="value negative" id="totalOutKas">Rp 0</div></div>
+                    <div class="score-card"><div class="label">📊 Saldo Akhir</div><div class="value" id="balanceKas">Rp 0</div></div>
+                </div>
+
+                <div class="progress-section">
+                    <h3><i class="fas fa-calendar-alt"></i> Pembayaran Kas per Siswa (Agustus 2026 - Mei 2027)</h3>
+                    <div id="progressListKas"><div class="loading-text">Loading data siswa...</div></div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Tanggal</th><th>Item Pengeluaran</th><th>Nominal</th><th>Foto Bukti</th></tr></thead>
+                        <tbody id="expenseTableKas"><tr><td colspan="4" class="loading-text">Loading data...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Single Dashboard Rekreasi -->
+            <div id="single-dashboard-rekreasi" class="single-dashboard">
+                <div class="dashboard-title rekreasi-title">
+                    <span class="title-icon">🎯</span> Dashboard Rekreasi
+                </div>
+                <div class="score-grid">
+                    <div class="score-card"><div class="label">💰 Uang Masuk</div><div class="value positive" id="totalInRekreasi">Rp 0</div></div>
+                    <div class="score-card"><div class="label">💸 Uang Keluar</div><div class="value negative" id="totalOutRekreasi">Rp 0</div></div>
+                    <div class="score-card"><div class="label">📊 Saldo Akhir</div><div class="value" id="balanceRekreasi">Rp 0</div></div>
+                </div>
+
+                <div class="progress-section">
+                    <h3><i class="fas fa-calendar-alt"></i> Pembayaran Rekreasi per Siswa</h3>
+                    <div id="progressListRekreasi"><div class="loading-text">Loading data siswa...</div></div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Tanggal</th><th>Item Pengeluaran</th><th>Nominal</th><th>Foto Bukti</th></tr></thead>
+                        <tbody id="expenseTableRekreasi"><tr><td colspan="4" class="loading-text">Loading data...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= INPUT ================= -->
+    <div id="input" class="page">
+        <div class="form-card">
+            <h3><i class="fas fa-edit"></i> Input Transaksi</h3>
+            <form id="inputForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="kategoriInput" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="kas">Kas</option>
+                        <option value="rekreasi">Rekreasi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Input</label>
+                    <select id="jenisInput" required>
+                        <option value="">-- Pilih Jenis --</option>
+                        <option value="pemasukan">Pemasukan</option>
+                        <option value="pengeluaran">Pengeluaran</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="date" id="tanggalInput" required />
+                </div>
+                <div id="pemasukanFields" class="hidden">
+                    <div class="form-group">
+                        <label>Nama Siswa</label>
+                        <select id="namaSiswa">
+                            <option value="">-- Pilih Siswa --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal (Rp)</label>
+                        <input type="number" id="nominalMasuk" placeholder="Masukkan nominal" />
+                    </div>
+                </div>
+                <div id="pengeluaranFields" class="hidden">
+                    <div class="form-group">
+                        <label>Item Pengeluaran</label>
+                        <input type="text" id="itemPengeluaran" placeholder="contoh: ATK, seragam..." />
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal (Rp)</label>
+                        <input type="number" id="nominalKeluar" placeholder="Masukkan nominal" />
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Bukti</label>
+                        <input type="file" id="buktiPengeluaran" accept="image/*" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Metode Pembayaran</label>
+                        <select id="metodeBayar">
+                            <option value="">-- Pilih Metode --</option>
+                            <option value="Cash">Cash</option>
+                            <option value="TF">Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="bankField">
+                        <label>Nama Bank</label>
+                        <input type="text" id="namaBank" placeholder="BCA, Mandiri..." />
+                    </div>
+                </div>
+                <button type="button" class="btn" id="submitBtn"><i class="fas fa-save"></i> Simpan</button>
+                <div id="formMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MANAGEMENT ================= -->
+    <div id="management" class="page">
+        <div class="management-grid">
+            <div class="form-card">
+                <h3><i class="fas fa-user-plus"></i> Add Siswa</h3>
+                <form id="addStudentForm" onsubmit="return false;">
+                    <div class="form-group"><label>Nama Siswa</label><input type="text" id="newStudentName" placeholder="Nama lengkap" required /></div>
+                    <button type="button" class="btn" id="addStudentBtn">Tambah Siswa</button>
+                </form>
+                <div id="studentMsg"></div>
+            </div>
+            <div>
+                <div class="form-card" style="margin-bottom:20px;">
+                    <h3><i class="fas fa-bullseye"></i> Target Pembayaran</h3>
+                    <div class="target-setting">
+                        <label>Target Kas (Rp)</label>
+                        <input type="number" id="targetKas" placeholder="Contoh: 350000" />
+                        <button type="button" class="btn-small" id="setTargetKasBtn">Set Target Kas</button>
+                    </div>
+                    <div class="target-setting">
+                        <label>Target Rekreasi (Rp)</label>
+                        <input type="number" id="targetRekreasi" placeholder="Contoh: 150000" />
+                        <button type="button" class="btn-small" id="setTargetRekreasiBtn">Set Target Rekreasi</button>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #f8fafc; border-radius: 12px;">
+                        <span class="target-info" id="currentTargetInfo">Target saat ini: Loading...</span>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3><i class="fas fa-list-ul"></i> Total Pembayaran per Siswa</h3>
+                    <div id="studentTotalList" class="student-list"><div class="loading-text">Loading data...</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ZOOM -->
+    <div class="modal" id="photoModal">
+        <span class="close" id="closeModal">&times;</span>
+        <img id="modalImage" src="" alt="Bukti" />
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ============ LOCAL STORAGE CONFIG ============
+        const STORAGE_KEY = 'mutiara_kas_data';
+        const PASSWORD = 'admin123';
+        const MONTHLY_FEE = 35000;
+        const TOTAL_MONTHS = 10;
+        const DEFAULT_TARGET_KAS = MONTHLY_FEE * TOTAL_MONTHS;
+        const DEFAULT_TARGET_REKREASI = 150000;
+
+        const BULAN_LIST = [
+            { bulan: 'Agt', tahun: '2026', full: 'Agustus 2026' },
+            { bulan: 'Sep', tahun: '2026', full: 'September 2026' },
+            { bulan: 'Okt', tahun: '2026', full: 'Oktober 2026' },
+            { bulan: 'Nov', tahun: '2026', full: 'November 2026' },
+            { bulan: 'Des', tahun: '2026', full: 'Desember 2026' },
+            { bulan: 'Jan', tahun: '2027', full: 'Januari 2027' },
+            { bulan: 'Feb', tahun: '2027', full: 'Februari 2027' },
+            { bulan: 'Mar', tahun: '2027', full: 'Maret 2027' },
+            { bulan: 'Apr', tahun: '2027', full: 'April 2027' },
+            { bulan: 'Mei', tahun: '2027', full: 'Mei 2027' }
+        ];
+
+        // Daftar siswa
+        const STUDENT_NAMES = [
+            'Adzriel', 'Alkha', 'Khalid', 'Nazla', 'Shafa', 
+            'Shena', 'Jasmine', 'Zela', 'Lean', 'Razkha', 
+            'Putri', 'Biantara', 'Naya', 'Affan'
+        ];
+
+        // ============ DATA STATE ============
+        let data = {
+            students: [],
+            transactions: [],
+            targetKas: DEFAULT_TARGET_KAS,
+            targetRekreasi: DEFAULT_TARGET_REKREASI
+        };
+
+        let isUnlocked = false;
+        let isDetailView = false;
+        let activeCategory = 'kas';
+
+        // ============ DOM REFS ============
+        const pages = document.querySelectorAll('.page');
+        const navItems = document.querySelectorAll('.nav-links li');
+        const hiddenNavs = document.querySelectorAll('.hidden-nav');
+        
+        const landingView = document.getElementById('landingView');
+        const detailView = document.getElementById('detailView');
+        const backToLanding = document.getElementById('backToLanding');
+        const landingCards = document.querySelectorAll('.landing-card');
+        const landingSaldoKas = document.getElementById('landingSaldoKas');
+        const landingSaldoRekreasi = document.getElementById('landingSaldoRekreasi');
+
+        const singleDashboards = document.querySelectorAll('.single-dashboard');
+
+        const totalInKas = document.getElementById('totalInKas');
+        const totalOutKas = document.getElementById('totalOutKas');
+        const balanceKas = document.getElementById('balanceKas');
+        const progressListKas = document.getElementById('progressListKas');
+        const expenseTableKas = document.getElementById('expenseTableKas');
+
+        const totalInRekreasi = document.getElementById('totalInRekreasi');
+        const totalOutRekreasi = document.getElementById('totalOutRekreasi');
+        const balanceRekreasi = document.getElementById('balanceRekreasi');
+        const progressListRekreasi = document.getElementById('progressListRekreasi');
+        const expenseTableRekreasi = document.getElementById('expenseTableRekreasi');
+
+        const kategoriInput = document.getElementById('kategoriInput');
+        const jenisInput = document.getElementById('jenisInput');
+        const pemasukanFields = document.getElementById('pemasukanFields');
+        const pengeluaranFields = document.getElementById('pengeluaranFields');
+        const metodeBayar = document.getElementById('metodeBayar');
+        const bankField = document.getElementById('bankField');
+        const tanggalInput = document.getElementById('tanggalInput');
+        const namaSiswaSelect = document.getElementById('namaSiswa');
+
+        const modal = document.getElementById('photoModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.getElementById('closeModal');
+
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const newStudentName = document.getElementById('newStudentName');
+        const studentTotalList = document.getElementById('studentTotalList');
+        const targetKas = document.getElementById('targetKas');
+        const targetRekreasi = document.getElementById('targetRekreasi');
+        const setTargetKasBtn = document.getElementById('setTargetKasBtn');
+        const setTargetRekreasiBtn = document.getElementById('setTargetRekreasiBtn');
+        const currentTargetInfo = document.getElementById('currentTargetInfo');
+        const studentMsg = document.getElementById('studentMsg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordError = document.getElementById('passwordError');
+        const unlockBtn = document.getElementById('unlockBtn');
+        const cancelBtn = document.getElementById('cancelPassword');
+        const lockIcon = document.getElementById('lockIcon');
+
+        // ============ LOCAL STORAGE FUNCTIONS ============
+        function loadData() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    data.students = parsed.students || [];
+                    data.transactions = parsed.transactions || [];
+                    data.targetKas = parsed.targetKas || DEFAULT_TARGET_KAS;
+                    data.targetRekreasi = parsed.targetRekreasi || DEFAULT_TARGET_REKREASI;
+                } else {
+                    // Generate dummy data with all students
+                    generateDummyData();
+                    saveData();
+                }
+                return true;
+            } catch (error) {
+                console.error('Error loading data:', error);
+                return false;
+            }
+        }
+
+        function generateDummyData() {
+            // Create students
+            data.students = STUDENT_NAMES.map((name, index) => ({
+                id: index + 1,
+                name: name,
+                paidKas: 0,
+                paidRekreasi: 0
+            }));
+
+            // Generate transactions for Kas (SPP)
+            const months = ['2026-08', '2026-09', '2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03', '2027-04', '2027-05'];
+            let transId = 1;
+            
+            // Some students have paid all 10 months, some partial
+            const paymentStatus = {
+                'Adzriel': 10, 'Alkha': 10, 'Khalid': 8, 'Nazla': 10, 'Shafa': 6,
+                'Shena': 10, 'Jasmine': 7, 'Zela': 10, 'Lean': 5, 'Razkha': 9,
+                'Putri': 10, 'Biantara': 4, 'Naya': 8, 'Affan': 10
+            };
+
+            // Generate Kas payments
+            for (const [studentName, paidMonths] of Object.entries(paymentStatus)) {
+                const student = data.students.find(s => s.name === studentName);
+                if (student) {
+                    let totalPaid = 0;
+                    for (let i = 0; i < paidMonths; i++) {
+                        const nominal = MONTHLY_FEE;
+                        totalPaid += nominal;
+                        const date = months[i] + '-' + String(Math.floor(Math.random() * 20) + 10).padStart(2, '0');
+                        data.transactions.push({
+                            id: transId++,
+                            type: 'pemasukan',
+                            category: 'kas',
+                            date: date,
+                            student: studentName,
+                            nominal: nominal,
+                            method: i % 2 === 0 ? 'Cash' : 'TF',
+                            bank: i % 2 === 0 ? '' : 'BCA',
+                            item: '',
+                            photo: ''
+                        });
+                    }
+                    student.paidKas = totalPaid;
+                }
+            }
+
+            // Generate Rekreasi payments (some students)
+            const rekreasiPayments = {
+                'Adzriel': 150000, 'Alkha': 150000, 'Khalid': 100000, 'Nazla': 150000, 
+                'Shafa': 50000, 'Shena': 150000, 'Jasmine': 100000, 'Zela': 150000,
+                'Lean': 50000, 'Razkha': 150000, 'Putri': 150000, 'Biantara': 50000,
+                'Naya': 100000, 'Affan': 150000
+            };
+
+            for (const [studentName, amount] of Object.entries(rekreasiPayments)) {
+                const student = data.students.find(s => s.name === studentName);
+                if (student && amount > 0) {
+                    student.paidRekreasi = amount;
+                    const date = '2027-01-' + String(Math.floor(Math.random() * 20) + 10).padStart(2, '0');
+                    data.transactions.push({
+                        id: transId++,
+                        type: 'pemasukan',
+                        category: 'rekreasi',
+                        date: date,
+                        student: studentName,
+                        nominal: amount,
+                        method: Math.random() > 0.5 ? 'Cash' : 'TF',
+                        bank: Math.random() > 0.5 ? 'BCA' : 'Mandiri',
+                        item: '',
+                        photo: ''
+                    });
+                }
+            }
+
+            // Generate some pengeluaran for Kas
+            const kasExpenses = [
+                { date: '2026-08-15', item: 'ATK', nominal: 50000 },
+                { date: '2026-09-20', item: 'Konsumsi', nominal: 75000 },
+                { date: '2026-10-10', item: 'Seragam', nominal: 120000 },
+                { date: '2026-11-05', item: 'ATK', nominal: 45000 },
+                { date: '2026-12-12', item: 'Hadiah', nominal: 80000 },
+                { date: '2027-01-18', item: 'Konsumsi', nominal: 65000 },
+                { date: '2027-02-22', item: 'ATK', nominal: 55000 },
+                { date: '2027-03-10', item: 'Seragam', nominal: 100000 }
+            ];
+
+            for (const exp of kasExpenses) {
+                data.transactions.push({
+                    id: transId++,
+                    type: 'pengeluaran',
+                    category: 'kas',
+                    date: exp.date,
+                    student: '',
+                    nominal: exp.nominal,
+                    method: 'Cash',
+                    bank: '',
+                    item: exp.item,
+                    photo: ''
+                });
+            }
+
+            // Generate some pengeluaran for Rekreasi
+            const rekreasiExpenses = [
+                { date: '2026-09-25', item: 'Konsumsi', nominal: 75000 },
+                { date: '2026-10-30', item: 'Transport', nominal: 100000 },
+                { date: '2026-11-15', item: 'Tiket', nominal: 50000 },
+                { date: '2027-01-20', item: 'Konsumsi', nominal: 85000 }
+            ];
+
+            for (const exp of rekreasiExpenses) {
+                data.transactions.push({
+                    id: transId++,
+                    type: 'pengeluaran',
+                    category: 'rekreasi',
+                    date: exp.date,
+                    student: '',
+                    nominal: exp.nominal,
+                    method: 'Cash',
+                    bank: '',
+                    item: exp.item,
+                    photo: ''
+                });
+            }
+
+            data.targetKas = DEFAULT_TARGET_KAS;
+            data.targetRekreasi = DEFAULT_TARGET_REKREASI;
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                return true;
+            } catch (error) {
+                console.error('Error saving data:', error);
+                return false;
+            }
+        }
+
+        // ============ RESET FORM ============
+        function resetFormFields() {
+            const today = new Date().toISOString().slice(0,10);
+            tanggalInput.value = today;
+            document.getElementById('nominalMasuk').value = '';
+            document.getElementById('nominalKeluar').value = '';
+            document.getElementById('itemPengeluaran').value = '';
+            document.getElementById('namaBank').value = '';
+            document.getElementById('buktiPengeluaran').value = '';
+            document.getElementById('formMessage').innerHTML = '';
+            document.getElementById('formMessage').className = '';
+            kategoriInput.value = '';
+            jenisInput.value = '';
+            pemasukanFields.classList.add('hidden');
+            pengeluaranFields.classList.add('hidden');
+            metodeBayar.value = '';
+            bankField.classList.add('hidden');
+            namaSiswaSelect.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            populateStudentSelect();
+        }
+
+        // ============ CRUD FUNCTIONS ============
+        function getNextId(arr) {
+            if (!arr || arr.length === 0) return 1;
+            return Math.max(...arr.map(item => item.id || 0)) + 1;
+        }
+
+        function addStudent(name) {
+            const existing = data.students.find(s => s.name.toLowerCase() === name.toLowerCase());
+            if (existing) {
+                throw new Error('Siswa sudah ada');
+            }
+            const newStudent = {
+                id: getNextId(data.students),
+                name: name.trim(),
+                paidKas: 0,
+                paidRekreasi: 0
+            };
+            data.students.push(newStudent);
+            saveData();
+            return newStudent;
+        }
+
+        function addTransaction(transaction) {
+            const newTrans = {
+                id: getNextId(data.transactions),
+                ...transaction,
+                nominal: parseInt(transaction.nominal) || 0,
+                category: transaction.category || 'kas'
+            };
+            data.transactions.push(newTrans);
+            
+            // Update student paid based on category
+            if (transaction.type === 'pemasukan' && transaction.student) {
+                const student = data.students.find(s => s.name === transaction.student);
+                if (student) {
+                    if (transaction.category === 'kas') {
+                        student.paidKas = (student.paidKas || 0) + newTrans.nominal;
+                    } else if (transaction.category === 'rekreasi') {
+                        student.paidRekreasi = (student.paidRekreasi || 0) + newTrans.nominal;
+                    }
+                }
+            }
+            
+            saveData();
+            return newTrans;
+        }
+
+        function updateTargetKas(newTarget) {
+            data.targetKas = parseInt(newTarget) || DEFAULT_TARGET_KAS;
+            saveData();
+            return data.targetKas;
+        }
+
+        function updateTargetRekreasi(newTarget) {
+            data.targetRekreasi = parseInt(newTarget) || DEFAULT_TARGET_REKREASI;
+            saveData();
+            return data.targetRekreasi;
+        }
+
+        // ============ RENDER FUNCTIONS ============
+        function renderLandingCards() {
+            try {
+                const transactions = data.transactions || [];
+                
+                // Calculate Kas balance
+                const kasTransactions = transactions.filter(t => t.category === 'kas');
+                let kasIn = 0, kasOut = 0;
+                kasTransactions.forEach(t => {
+                    if (t.type === 'pemasukan') kasIn += t.nominal;
+                    else if (t.type === 'pengeluaran') kasOut += t.nominal;
+                });
+                const kasBalance = kasIn - kasOut;
+                landingSaldoKas.innerText = 'Rp ' + kasBalance.toLocaleString('id-ID');
+                landingSaldoKas.className = 'card-amount ' + (kasBalance >= 0 ? 'positive' : 'negative');
+
+                // Calculate Rekreasi balance
+                const rekreasiTransactions = transactions.filter(t => t.category === 'rekreasi');
+                let rekreasiIn = 0, rekreasiOut = 0;
+                rekreasiTransactions.forEach(t => {
+                    if (t.type === 'pemasukan') rekreasiIn += t.nominal;
+                    else if (t.type === 'pengeluaran') rekreasiOut += t.nominal;
+                });
+                const rekreasiBalance = rekreasiIn - rekreasiOut;
+                landingSaldoRekreasi.innerText = 'Rp ' + rekreasiBalance.toLocaleString('id-ID');
+                landingSaldoRekreasi.className = 'card-amount ' + (rekreasiBalance >= 0 ? 'positive' : 'negative');
+            } catch (error) {
+                console.error('Error rendering landing cards:', error);
+            }
+        }
+
+        function renderDashboardKas() {
+            try {
+                const students = data.students || [];
+                const transactions = data.transactions || [];
+
+                // Filter by category 'kas'
+                const kasTransactions = transactions.filter(t => t.category === 'kas');
+                let totalIn = 0, totalOut = 0;
+                kasTransactions.forEach(t => {
+                    if (t.type === 'pemasukan') totalIn += t.nominal;
+                    else if (t.type === 'pengeluaran') totalOut += t.nominal;
+                });
+
+                totalInKas.innerText = 'Rp ' + totalIn.toLocaleString('id-ID');
+                totalOutKas.innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
+                balanceKas.innerText = 'Rp ' + (totalIn - totalOut).toLocaleString('id-ID');
+
+                // Progress list for Kas
+                let html = '';
+                if (students.length === 0) {
+                    html = '<p style="color:#999;">Belum ada siswa</p>';
+                } else {
+                    students.forEach(s => {
+                        const paid = s.paidKas || 0;
+                        const bulanLunas = Math.min(Math.floor(paid / MONTHLY_FEE), TOTAL_MONTHS);
+                        const sisaBulan = TOTAL_MONTHS - bulanLunas;
+                        const sisaRupiah = sisaBulan * MONTHLY_FEE;
+                        const isFull = bulanLunas >= TOTAL_MONTHS;
+
+                        let monthHtml = '';
+                        BULAN_LIST.forEach((b, index) => {
+                            const isPaid = index < bulanLunas;
+                            monthHtml += `
+                                <div class="month-box ${isPaid ? 'paid' : ''}" 
+                                     data-tooltip="${b.full}">
+                                </div>
+                            `;
+                        });
+
+                        let statusText = '';
+                        if (isFull) {
+                            statusText = `<span class="lunas-text">✅ Lunas (10/10)</span>`;
+                        } else {
+                            statusText = `
+                                <span class="sisa">Sisa ${sisaBulan} bulan</span>
+                                <br/>
+                                <span class="bulan-text">Rp ${sisaRupiah.toLocaleString('id-ID')}</span>
+                            `;
+                        }
+
+                        html += `
+                            <div class="progress-item">
+                                <span class="name">${s.name}</span>
+                                <div class="month-container">${monthHtml}</div>
+                                <span class="status ${isFull ? 'done' : ''}">${statusText}</span>
+                            </div>
+                        `;
+                    });
+                }
+                progressListKas.innerHTML = html;
+
+                // Expense table for Kas
+                const expenses = kasTransactions.filter(t => t.type === 'pengeluaran');
+                let rows = '';
+                if (expenses.length === 0) {
+                    rows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pengeluaran</td></tr>`;
+                } else {
+                    expenses.forEach(e => {
+                        const photoHtml = e.photo ? `<img src="${e.photo}" class="photo-thumb" data-photo="${e.photo}" />` : '<span style="color:#999;">tidak ada</span>';
+                        rows += `<tr><td>${e.date}</td><td>${e.item || '-'}</td><td>Rp ${e.nominal.toLocaleString('id-ID')}</td><td>${photoHtml}</td></tr>`;
+                    });
+                }
+                expenseTableKas.innerHTML = rows;
+
+                document.querySelectorAll('#expenseTableKas .photo-thumb').forEach(img => {
+                    img.addEventListener('click', function() {
+                        const src = this.dataset.photo;
+                        if (src) { modalImage.src = src; modal.classList.add('open'); }
+                    });
+                });
+
+                updateTargetInfo();
+            } catch (error) {
+                console.error('Error rendering dashboard kas:', error);
+            }
+        }
+
+        function renderDashboardRekreasi() {
+            try {
+                const students = data.students || [];
+                const transactions = data.transactions || [];
+
+                // Filter by category 'rekreasi'
+                const rekreasiTransactions = transactions.filter(t => t.category === 'rekreasi');
+                let totalIn = 0, totalOut = 0;
+                rekreasiTransactions.forEach(t => {
+                    if (t.type === 'pemasukan') totalIn += t.nominal;
+                    else if (t.type === 'pengeluaran') totalOut += t.nominal;
+                });
+
+                totalInRekreasi.innerText = 'Rp ' + totalIn.toLocaleString('id-ID');
+                totalOutRekreasi.innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
+                balanceRekreasi.innerText = 'Rp ' + (totalIn - totalOut).toLocaleString('id-ID');
+
+                // Progress list for Rekreasi
+                let html = '';
+                if (students.length === 0) {
+                    html = '<p style="color:#999;">Belum ada siswa</p>';
+                } else {
+                    students.forEach(s => {
+                        const paid = s.paidRekreasi || 0;
+                        const target = data.targetRekreasi || DEFAULT_TARGET_REKREASI;
+                        const isFull = paid >= target;
+                        const sisa = Math.max(0, target - paid);
+
+                        let statusText = '';
+                        if (isFull) {
+                            statusText = `<span class="lunas-text">✅ Lunas</span>`;
+                        } else {
+                            statusText = `
+                                <span class="sisa">Sisa Rp ${sisa.toLocaleString('id-ID')}</span>
+                            `;
+                        }
+
+                        html += `
+                            <div class="progress-item">
+                                <span class="name">${s.name}</span>
+                                <div style="flex:1; display:flex; align-items:center; gap:12px;">
+                                    <div style="flex:1; height:8px; background:#e9edf2; border-radius:4px; overflow:hidden;">
+                                        <div style="height:100%; width:${Math.min((paid/target)*100, 100)}%; background:#9b59b6; border-radius:4px;"></div>
+                                    </div>
+                                    <span style="font-size:13px; font-weight:600; min-width:100px;">
+                                        Rp ${paid.toLocaleString('id-ID')} / Rp ${target.toLocaleString('id-ID')}
+                                    </span>
+                                </div>
+                                <span class="status ${isFull ? 'done' : ''}">${statusText}</span>
+                            </div>
+                        `;
+                    });
+                }
+                progressListRekreasi.innerHTML = html;
+
+                // Expense table for Rekreasi
+                const expenses = rekreasiTransactions.filter(t => t.type === 'pengeluaran');
+                let rows = '';
+                if (expenses.length === 0) {
+                    rows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pengeluaran</td></tr>`;
+                } else {
+                    expenses.forEach(e => {
+                        const photoHtml = e.photo ? `<img src="${e.photo}" class="photo-thumb" data-photo="${e.photo}" />` : '<span style="color:#999;">tidak ada</span>';
+                        rows += `<tr><td>${e.date}</td><td>${e.item || '-'}</td><td>Rp ${e.nominal.toLocaleString('id-ID')}</td><td>${photoHtml}</td></tr>`;
+                    });
+                }
+                expenseTableRekreasi.innerHTML = rows;
+
+                document.querySelectorAll('#expenseTableRekreasi .photo-thumb').forEach(img => {
+                    img.addEventListener('click', function() {
+                        const src = this.dataset.photo;
+                        if (src) { modalImage.src = src; modal.classList.add('open'); }
+                    });
+                });
+
+                updateTargetInfo();
+            } catch (error) {
+                console.error('Error rendering dashboard rekreasi:', error);
+            }
+        }
+
+        function renderManagement() {
+            try {
+                const students = data.students || [];
+
+                let html = '';
+                if (students.length === 0) {
+                    html = '<div style="color:#999;">Belum ada siswa</div>';
+                } else {
+                    students.forEach(s => {
+                        const totalPaid = (s.paidKas || 0) + (s.paidRekreasi || 0);
+                        const totalTarget = (data.targetKas || DEFAULT_TARGET_KAS) + (data.targetRekreasi || DEFAULT_TARGET_REKREASI);
+                        html += `
+                            <div class="student-item">
+                                <div>
+                                    <strong>${s.name}</strong>
+                                    <div class="student-payment-detail">
+                                        <span class="kas-amount">Kas: Rp ${(s.paidKas || 0).toLocaleString('id-ID')}</span>
+                                        <span class="rekreasi-amount">Rekreasi: Rp ${(s.paidRekreasi || 0).toLocaleString('id-ID')}</span>
+                                    </div>
+                                </div>
+                                <span class="total">Rp ${totalPaid.toLocaleString('id-ID')} / Rp ${totalTarget.toLocaleString('id-ID')}</span>
+                            </div>
+                        `;
+                    });
+                }
+                studentTotalList.innerHTML = html;
+                populateStudentSelect();
+                updateTargetInfo();
+            } catch (error) {
+                console.error('Error rendering management:', error);
+            }
+        }
+
+        function populateStudentSelect() {
+            namaSiswaSelect.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            data.students.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.name;
+                opt.textContent = s.name;
+                namaSiswaSelect.appendChild(opt);
+            });
+        }
+
+        function updateTargetInfo() {
+            const targetKasVal = data.targetKas || DEFAULT_TARGET_KAS;
+            const targetRekreasiVal = data.targetRekreasi || DEFAULT_TARGET_REKREASI;
+            const totalBulanKas = Math.floor(targetKasVal / MONTHLY_FEE);
+            currentTargetInfo.innerHTML = `
+                <strong>Target Kas:</strong> Rp ${targetKasVal.toLocaleString('id-ID')} (${totalBulanKas} bulan × Rp ${MONTHLY_FEE.toLocaleString('id-ID')})<br/>
+                <strong>Target Rekreasi:</strong> Rp ${targetRekreasiVal.toLocaleString('id-ID')}
+            `;
+            targetKas.value = targetKasVal;
+            targetRekreasi.value = targetRekreasiVal;
+        }
+
+        // ============ VIEW MANAGEMENT ============
+        function showLandingView() {
+            isDetailView = false;
+            landingView.style.display = 'grid';
+            detailView.classList.remove('visible');
+            singleDashboards.forEach(d => d.classList.remove('active'));
+            renderLandingCards();
+        }
+
+        function showDetailView(category) {
+            isDetailView = true;
+            activeCategory = category;
+            landingView.style.display = 'none';
+            detailView.classList.add('visible');
+            
+            // Show only the selected dashboard
+            singleDashboards.forEach(d => d.classList.remove('active'));
+            const targetDashboard = document.getElementById('single-dashboard-' + category);
+            if (targetDashboard) targetDashboard.classList.add('active');
+            
+            // Render the selected dashboard
+            if (category === 'kas') {
+                renderDashboardKas();
+            } else if (category === 'rekreasi') {
+                renderDashboardRekreasi();
+            }
+        }
+
+        // ============ LOCK/UNLOCK ============
+        function unlockMenu() {
+            isUnlocked = true;
+            hiddenNavs.forEach(nav => nav.classList.add('show'));
+            lockIcon.className = 'fas fa-unlock lock-icon unlocked';
+            lockIcon.title = 'Menu sudah terbuka';
+            passwordModal.classList.remove('open');
+            passwordError.classList.remove('show');
+            passwordInput.value = '';
+        }
+
+        function lockMenu() {
+            isUnlocked = false;
+            hiddenNavs.forEach(nav => nav.classList.remove('show'));
+            lockIcon.className = 'fas fa-lock lock-icon';
+            lockIcon.title = 'Klik untuk membuka menu Input & Management';
+            
+            const activePage = document.querySelector('.page.active');
+            if (activePage && (activePage.id === 'input' || activePage.id === 'management')) {
+                document.getElementById('dashboard').classList.add('active');
+                activePage.classList.remove('active');
+                navItems.forEach(n => n.classList.remove('active'));
+                document.querySelector('[data-page="dashboard"]').classList.add('active');
+                showLandingView();
+            }
+        }
+
+        // ============ RENDER ALL ============
+        function renderAll() {
+            renderLandingCards();
+            renderDashboardKas();
+            renderDashboardRekreasi();
+            renderManagement();
+        }
+
+        // ============ EVENT LISTENERS ============
+        // Landing cards click
+        landingCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.dataset.category;
+                showDetailView(category);
+            });
+        });
+
+        // Back to landing
+        backToLanding.addEventListener('click', function() {
+            showLandingView();
+        });
+
+        // Navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const pageId = this.dataset.page;
+                
+                if ((pageId === 'input' || pageId === 'management') && !isUnlocked) {
+                    passwordModal.classList.add('open');
+                    passwordInput.focus();
+                    return;
+                }
+                
+                navItems.forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+                pages.forEach(p => p.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                
+                if (pageId === 'dashboard') {
+                    if (isDetailView) {
+                        detailView.classList.add('visible');
+                        landingView.style.display = 'none';
+                        // Restore the active dashboard
+                        const targetDashboard = document.getElementById('single-dashboard-' + activeCategory);
+                        if (targetDashboard) {
+                            singleDashboards.forEach(d => d.classList.remove('active'));
+                            targetDashboard.classList.add('active');
+                        }
+                    } else {
+                        showLandingView();
+                    }
+                }
+                if (pageId === 'management') renderManagement();
+                if (pageId === 'input') {
+                    resetFormFields();
+                    populateStudentSelect();
+                }
+            });
+        });
+
+        lockIcon.addEventListener('click', function() {
+            if (isUnlocked) {
+                if (confirm('Kunci kembali menu Input & Management?')) {
+                    lockMenu();
+                }
+            } else {
+                passwordModal.classList.add('open');
+                passwordInput.value = '';
+                passwordError.classList.remove('show');
+                passwordInput.focus();
+            }
+        });
+
+        unlockBtn.addEventListener('click', function() {
+            const inputPass = passwordInput.value.trim();
+            if (inputPass === PASSWORD) {
+                unlockMenu();
+            } else {
+                passwordError.classList.add('show');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            passwordModal.classList.remove('open');
+            passwordError.classList.remove('show');
+            passwordInput.value = '';
+        });
+
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                unlockBtn.click();
+            }
+        });
+
+        passwordModal.addEventListener('click', function(e) {
+            if (e.target === passwordModal) {
+                cancelBtn.click();
+            }
+        });
+
+        kategoriInput.addEventListener('change', function() {});
+
+        jenisInput.addEventListener('change', function() {
+            if (this.value === 'pemasukan') {
+                pemasukanFields.classList.remove('hidden');
+                pengeluaranFields.classList.add('hidden');
+            } else if (this.value === 'pengeluaran') {
+                pemasukanFields.classList.add('hidden');
+                pengeluaranFields.classList.remove('hidden');
+            } else {
+                pemasukanFields.classList.add('hidden');
+                pengeluaranFields.classList.add('hidden');
+            }
+        });
+
+        metodeBayar.addEventListener('change', function() {
+            if (this.value === 'TF') bankField.classList.remove('hidden');
+            else bankField.classList.add('hidden');
+        });
+
+        submitBtn.addEventListener('click', function() {
+            const kategori = kategoriInput.value;
+            const jenis = jenisInput.value;
+            const date = tanggalInput.value;
+            const method = metodeBayar.value;
+            const bank = document.getElementById('namaBank').value.trim();
+            const formMessage = document.getElementById('formMessage');
+
+            if (!kategori) {
+                formMessage.innerHTML = '<span class="error-msg">Pilih kategori terlebih dahulu</span>';
+                return;
+            }
+            if (!jenis) {
+                formMessage.innerHTML = '<span class="error-msg">Pilih jenis input terlebih dahulu</span>';
+                return;
+            }
+            if (!method) {
+                formMessage.innerHTML = '<span class="error-msg">Pilih metode pembayaran</span>';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+
+            try {
+                if (jenis === 'pemasukan') {
+                    const student = document.getElementById('namaSiswa').value;
+                    const nominal = parseInt(document.getElementById('nominalMasuk').value);
+                    
+                    if (!student || student === '' || student === '-- Pilih Siswa --') {
+                        formMessage.innerHTML = '<span class="error-msg">Pilih siswa terlebih dahulu</span>';
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                        return;
+                    }
+                    
+                    if (!nominal || nominal <= 0) {
+                        formMessage.innerHTML = '<span class="error-msg">Masukkan nominal valid</span>';
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                        return;
+                    }
+
+                    addTransaction({
+                        type: 'pemasukan',
+                        category: kategori,
+                        date,
+                        student,
+                        nominal,
+                        method,
+                        bank: bank || '',
+                        item: '',
+                        photo: ''
+                    });
+
+                    formMessage.innerHTML = '<span class="success-msg">✅ Pemasukan berhasil!</span>';
+                    resetFormFields();
+                    renderAll();
+                    if (isDetailView) {
+                        showDetailView(activeCategory);
+                    }
+                } else {
+                    const item = document.getElementById('itemPengeluaran').value.trim();
+                    const nominal = parseInt(document.getElementById('nominalKeluar').value);
+                    
+                    if (!item || !nominal || nominal <= 0) {
+                        formMessage.innerHTML = '<span class="error-msg">Lengkapi item & nominal</span>';
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                        return;
+                    }
+
+                    const fileInput = document.getElementById('buktiPengeluaran');
+                    let photo = '';
+
+                    if (fileInput.files && fileInput.files[0]) {
+                        const file = fileInput.files[0];
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            photo = ev.target.result;
+                            addTransaction({
+                                type: 'pengeluaran',
+                                category: kategori,
+                                date,
+                                student: '',
+                                nominal,
+                                method,
+                                bank: bank || '',
+                                item,
+                                photo
+                            });
+                            formMessage.innerHTML = '<span class="success-msg">✅ Pengeluaran berhasil!</span>';
+                            resetFormFields();
+                            renderAll();
+                            if (isDetailView) {
+                                showDetailView(activeCategory);
+                            }
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+                        };
+                        reader.readAsDataURL(file);
+                        return;
+                    } else {
+                        addTransaction({
+                            type: 'pengeluaran',
+                            category: kategori,
+                            date,
+                            student: '',
+                            nominal,
+                            method,
+                            bank: bank || '',
+                            item,
+                            photo: ''
+                        });
+                        formMessage.innerHTML = '<span class="success-msg">✅ Pengeluaran berhasil!</span>';
+                        resetFormFields();
+                        renderAll();
+                        if (isDetailView) {
+                            showDetailView(activeCategory);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error submitting transaction:', error);
+                formMessage.innerHTML = '<span class="error-msg">❌ Terjadi kesalahan</span>';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Simpan';
+        });
+
+        addStudentBtn.addEventListener('click', function() {
+            const name = newStudentName.value.trim();
+            
+            if (!name) {
+                studentMsg.innerHTML = '<span class="error-msg">Nama wajib diisi</span>';
+                return;
+            }
+            
+            if (data.students.find(s => s.name.toLowerCase() === name.toLowerCase())) {
+                studentMsg.innerHTML = '<span class="error-msg">Siswa sudah ada</span>';
+                return;
+            }
+
+            addStudentBtn.disabled = true;
+            addStudentBtn.textContent = 'Menyimpan...';
+
+            try {
+                addStudent(name);
+                studentMsg.innerHTML = '<span class="success-msg">✅ Siswa "' + name + '" berhasil ditambahkan!</span>';
+                newStudentName.value = '';
+                renderAll();
+                if (isDetailView) {
+                    showDetailView(activeCategory);
+                }
+                setTimeout(() => {
+                    studentMsg.innerHTML = '';
+                }, 3000);
+            } catch (error) {
+                console.error('Error adding student:', error);
+                studentMsg.innerHTML = '<span class="error-msg">❌ Terjadi kesalahan</span>';
+            }
+
+            addStudentBtn.disabled = false;
+            addStudentBtn.textContent = 'Tambah Siswa';
+        });
+
+        setTargetKasBtn.addEventListener('click', function() {
+            const val = parseInt(targetKas.value);
+            if (!val || val <= 0) {
+                alert('Masukkan target kas yang valid (minimal Rp 1)');
+                return;
+            }
+
+            setTargetKasBtn.disabled = true;
+            setTargetKasBtn.textContent = 'Menyimpan...';
+
+            try {
+                updateTargetKas(val);
+                updateTargetInfo();
+                renderAll();
+                if (isDetailView) {
+                    showDetailView(activeCategory);
+                }
+                alert('✅ Target Kas berhasil diupdate!');
+            } catch (error) {
+                console.error('Error setting target kas:', error);
+                alert('❌ Terjadi kesalahan');
+            }
+
+            setTargetKasBtn.disabled = false;
+            setTargetKasBtn.textContent = 'Set Target Kas';
+        });
+
+        setTargetRekreasiBtn.addEventListener('click', function() {
+            const val = parseInt(targetRekreasi.value);
+            if (!val || val <= 0) {
+                alert('Masukkan target rekreasi yang valid (minimal Rp 1)');
+                return;
+            }
+
+            setTargetRekreasiBtn.disabled = true;
+            setTargetRekreasiBtn.textContent = 'Menyimpan...';
+
+            try {
+                updateTargetRekreasi(val);
+                updateTargetInfo();
+                renderAll();
+                if (isDetailView) {
+                    showDetailView(activeCategory);
+                }
+                alert('✅ Target Rekreasi berhasil diupdate!');
+            } catch (error) {
+                console.error('Error setting target rekreasi:', error);
+                alert('❌ Terjadi kesalahan');
+            }
+
+            setTargetRekreasiBtn.disabled = false;
+            setTargetRekreasiBtn.textContent = 'Set Target Rekreasi';
+        });
+
+        targetKas.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                setTargetKasBtn.click();
+            }
+        });
+
+        targetRekreasi.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                setTargetRekreasiBtn.click();
+            }
+        });
+
+        document.getElementById('newStudentName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addStudentBtn.click();
+            }
+        });
+
+        closeModal.addEventListener('click', () => modal.classList.remove('open'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
+
+        // ============ INIT ============
+        function init() {
+            loadData();
+            resetFormFields();
+            populateStudentSelect();
+            updateTargetInfo();
+            renderAll();
+            showLandingView();
+            lockMenu();
+        }
+
+        init();
+    })();
+</script>
+
+</body>
+</html>
