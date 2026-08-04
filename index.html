@@ -38,6 +38,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 12px;
             position: relative;
         }
 
@@ -54,6 +55,7 @@
             display: flex;
             gap: 28px;
             list-style: none;
+            flex-wrap: wrap;
         }
         .nav-links li {
             font-weight: 600;
@@ -195,7 +197,7 @@
             display: block;
         }
 
-        /* Summary Cards - Main landing view */
+        /* LANDING VIEW */
         .landing-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -259,7 +261,7 @@
             opacity: 0.7;
         }
 
-        /* Detailed Dashboard */
+        /* DETAILED DASHBOARD */
         .dashboard-wrapper {
             display: none;
         }
@@ -291,13 +293,23 @@
             display: block;
         }
 
-        /* Score Grid - 7 cards */
-        .score-grid {
+        /* ===== SCORE GRID ===== */
+        /* Baris 1: 3 kolom */
+        .score-grid-row1 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
+
+        /* Baris 2: 4 kolom */
+        .score-grid-row2 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
         .score-card {
             background: white;
             padding: 18px 14px;
@@ -321,17 +333,96 @@
         .score-card .value.positive { color: #2a9d8f; }
         .score-card .value.negative { color: #e76f51; }
         .score-card .sub {
-            font-size: 12px;
+            font-size: 11px;
             color: #8899a8;
             margin-top: 2px;
         }
 
-        /* Special styling for breakdown cards */
+        /* Warna border kiri untuk pos */
         .score-card.breakdown-kas { border-left: 4px solid #2a9d8f; }
         .score-card.breakdown-komite { border-left: 4px solid #2980b9; }
         .score-card.breakdown-dana { border-left: 4px solid #e67e22; }
         .score-card.breakdown-konsumsi { border-left: 4px solid #8e44ad; }
 
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .score-grid-row2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .score-grid-row1 {
+                grid-template-columns: 1fr;
+            }
+            .score-grid-row2 {
+                grid-template-columns: 1fr 1fr;
+            }
+            .page {
+                padding: 16px;
+            }
+            .navbar {
+                padding: 12px 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-links {
+                justify-content: center;
+                gap: 16px;
+            }
+            .nav-links li {
+                font-size: 13px;
+            }
+            .landing-grid {
+                grid-template-columns: 1fr;
+                padding: 10px 0;
+            }
+            .logo h1 {
+                font-size: 16px;
+                text-align: center;
+            }
+            .dashboard-title {
+                font-size: 18px;
+            }
+            .score-card .value {
+                font-size: 18px;
+            }
+            .progress-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .progress-item .name {
+                width: 100%;
+            }
+            .progress-item .month-container {
+                width: 100%;
+            }
+            .progress-item .status {
+                width: 100%;
+                text-align: left;
+            }
+            .progress-item .pos-breakdown {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .progress-item .pos-breakdown span {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .score-grid-row2 {
+                grid-template-columns: 1fr;
+            }
+            .score-card {
+                padding: 14px 10px;
+            }
+            .score-card .value {
+                font-size: 16px;
+            }
+        }
+
+        /* ===== PROGRESS SECTION ===== */
         .progress-section {
             background: #fafcff;
             border-radius: 20px;
@@ -421,6 +512,7 @@
             padding-top: 4px;
             border-top: 1px dashed #e9edf2;
             margin-top: 4px;
+            flex-wrap: wrap;
         }
         .progress-item .pos-breakdown span {
             background: #f0f4f8;
@@ -432,6 +524,7 @@
         .pos-dana { color: #e67e22; }
         .pos-konsumsi { color: #8e44ad; }
 
+        /* ===== TABLES ===== */
         .table-wrap {
             background: white;
             border-radius: 20px;
@@ -446,6 +539,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            min-width: 500px;
         }
         th {
             text-align: left;
@@ -483,6 +577,38 @@
             margin-top: 0;
         }
 
+        .method-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .method-cash {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .method-tf {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .dashboard-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b2b3d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dashboard-title .title-icon {
+            font-size: 28px;
+        }
+        .dashboard-title.kas-title .title-icon { color: #2a9d8f; }
+        .dashboard-title.rekreasi-title .title-icon { color: #9b59b6; }
+
+        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -517,6 +643,7 @@
             transform: scale(1.2);
         }
 
+        /* ===== FORM ===== */
         .form-card {
             background: white;
             border-radius: 24px;
@@ -589,26 +716,16 @@
             display: none;
         }
 
+        /* ===== MANAGEMENT ===== */
         .management-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 32px;
         }
         @media (max-width: 800px) {
-            .management-grid { grid-template-columns: 1fr; }
-            .navbar { flex-direction: column; align-items: stretch; gap: 12px; }
-            .nav-links { justify-content: space-around; }
-            .progress-item .month-box {
-                width: 28px;
-                height: 28px;
-                font-size: 10px;
+            .management-grid {
+                grid-template-columns: 1fr;
             }
-            .progress-item .name {
-                width: 100px;
-                font-size: 13px;
-            }
-            .landing-grid { grid-template-columns: 1fr; }
-            .score-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         .student-list {
@@ -623,11 +740,32 @@
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid #ecf0f5;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .student-item:last-child { border-bottom: none; }
         .student-item .total {
             font-weight: 600;
             color: #0b2b3d;
+        }
+
+        .student-payment-detail {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #5b6f7e;
+            flex-wrap: wrap;
+        }
+        .student-payment-detail span {
+            background: #f0f4f8;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+        .student-payment-detail .kas-amount {
+            color: #0d47a1;
+        }
+        .student-payment-detail .rekreasi-amount {
+            color: #4a148c;
         }
 
         .success-msg {
@@ -679,7 +817,6 @@
         .target-info {
             font-size: 14px;
             color: #3b5565;
-            margin-left: auto;
         }
         .error-msg {
             color: #c0392b;
@@ -700,55 +837,6 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
-
-        .method-badge {
-            display: inline-block;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .method-cash {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        .method-tf {
-            background: #e3f2fd;
-            color: #0d47a1;
-        }
-
-        .student-payment-detail {
-            display: flex;
-            gap: 16px;
-            font-size: 13px;
-            color: #5b6f7e;
-        }
-        .student-payment-detail span {
-            background: #f0f4f8;
-            padding: 2px 10px;
-            border-radius: 12px;
-        }
-        .student-payment-detail .kas-amount {
-            color: #0d47a1;
-        }
-        .student-payment-detail .rekreasi-amount {
-            color: #4a148c;
-        }
-
-        .dashboard-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #0b2b3d;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .dashboard-title .title-icon {
-            font-size: 28px;
-        }
-        .dashboard-title.kas-title .title-icon { color: #2a9d8f; }
-        .dashboard-title.rekreasi-title .title-icon { color: #9b59b6; }
     </style>
 </head>
 <body>
@@ -757,7 +845,7 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="logo"><h1>🏫 Mutiara <span>Indah </span>2026 - 2027</span></h1></div>
-        <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
             <ul class="nav-links">
                 <li class="active" data-page="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</li>
                 <li class="hidden-nav" data-page="input"><i class="fas fa-pen"></i> Input</li>
@@ -812,8 +900,8 @@
                     <span class="title-icon">💰</span> Dashboard Kas
                 </div>
 
-                <!-- 7 SCORE CARDS -->
-                <div class="score-grid">
+                <!-- SCORE CARDS - BARIS 1 (3 kolom) -->
+                <div class="score-grid-row1">
                     <div class="score-card">
                         <div class="label">💰 Uang Masuk</div>
                         <div class="value positive" id="totalInKas">Rp 0</div>
@@ -826,6 +914,10 @@
                         <div class="label">📊 Saldo Akhir</div>
                         <div class="value" id="balanceKas">Rp 0</div>
                     </div>
+                </div>
+
+                <!-- SCORE CARDS - BARIS 2 (4 kolom) -->
+                <div class="score-grid-row2">
                     <div class="score-card breakdown-kas">
                         <div class="label">💰 Kas</div>
                         <div class="value positive" id="breakdownKas">Rp 0</div>
@@ -848,13 +940,13 @@
                     </div>
                 </div>
 
-                <!-- PROGRESS PEMBAYARAN KAS -->
+                <!-- PROGRESS -->
                 <div class="progress-section">
                     <h3><i class="fas fa-calendar-alt"></i> Pembayaran Kas per Siswa (Agustus 2026 - Mei 2027)</h3>
                     <div id="progressListKas"><div class="loading-text">Loading data siswa...</div></div>
                 </div>
 
-                <!-- TABEL PEMASUKAN KAS -->
+                <!-- TABEL PEMASUKAN -->
                 <div class="table-section-title"><i class="fas fa-arrow-down" style="color:#2a9d8f;"></i> Riwayat Pemasukan Kas</div>
                 <div class="table-wrap">
                     <table>
@@ -863,7 +955,7 @@
                     </table>
                 </div>
 
-                <!-- TABEL PENGELUARAN KAS -->
+                <!-- TABEL PENGELUARAN -->
                 <div class="table-section-title"><i class="fas fa-arrow-up" style="color:#e76f51;"></i> Riwayat Pengeluaran Kas</div>
                 <div class="table-wrap">
                     <table>
@@ -878,7 +970,7 @@
                 <div class="dashboard-title rekreasi-title">
                     <span class="title-icon">🎯</span> Dashboard Rekreasi
                 </div>
-                <div class="score-grid">
+                <div class="score-grid-row1">
                     <div class="score-card">
                         <div class="label">💰 Uang Masuk</div>
                         <div class="value positive" id="totalInRekreasi">Rp 0</div>
@@ -1043,7 +1135,7 @@
         const DEFAULT_TARGET_KAS = MONTHLY_FEE * TOTAL_MONTHS;
         const DEFAULT_TARGET_REKREASI = 150000;
 
-        // Komposisi per pos (dalam rupiah)
+        // Komposisi per pos
         const POS_KAS = 10000;
         const POS_KOMITE = 10000;
         const POS_DANA = 5000;
@@ -1424,24 +1516,18 @@
                 totalOutKas.innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
                 balanceKas.innerText = 'Rp ' + balance.toLocaleString('id-ID');
 
-                // Hitung breakdown dari saldo akhir berdasarkan persentase
-                // Kas: 10000/35000 = 28.57%, Komite: 28.57%, Dana: 14.29%, Konsumsi: 28.57%
+                // Breakdown dari Saldo Akhir
                 const pctKas = POS_KAS / MONTHLY_FEE;
                 const pctKomite = POS_KOMITE / MONTHLY_FEE;
                 const pctDana = POS_DANA / MONTHLY_FEE;
                 const pctKonsumsi = POS_KONSUMSI / MONTHLY_FEE;
 
-                const breakdownKasVal = balance * pctKas;
-                const breakdownKomiteVal = balance * pctKomite;
-                const breakdownDanaVal = balance * pctDana;
-                const breakdownKonsumsiVal = balance * pctKonsumsi;
+                breakdownKas.innerText = 'Rp ' + Math.round(balance * pctKas).toLocaleString('id-ID');
+                breakdownKomite.innerText = 'Rp ' + Math.round(balance * pctKomite).toLocaleString('id-ID');
+                breakdownDana.innerText = 'Rp ' + Math.round(balance * pctDana).toLocaleString('id-ID');
+                breakdownKonsumsi.innerText = 'Rp ' + Math.round(balance * pctKonsumsi).toLocaleString('id-ID');
 
-                breakdownKas.innerText = 'Rp ' + Math.round(breakdownKasVal).toLocaleString('id-ID');
-                breakdownKomite.innerText = 'Rp ' + Math.round(breakdownKomiteVal).toLocaleString('id-ID');
-                breakdownDana.innerText = 'Rp ' + Math.round(breakdownDanaVal).toLocaleString('id-ID');
-                breakdownKonsumsi.innerText = 'Rp ' + Math.round(breakdownKonsumsiVal).toLocaleString('id-ID');
-
-                // Progress list Kas
+                // Progress list
                 let html = '';
                 if (students.length === 0) {
                     html = '<p style="color:#999;">Belum ada siswa</p>';
@@ -1463,7 +1549,6 @@
                             `;
                         });
 
-                        // Breakdown per pos untuk siswa ini
                         const kasPos = paid * pctKas;
                         const komitePos = paid * pctKomite;
                         const danaPos = paid * pctDana;
@@ -1497,7 +1582,7 @@
                 }
                 progressListKas.innerHTML = html;
 
-                // Payment table Kas
+                // Payment table
                 const kasPayments = kasTransactions.filter(t => t.type === 'pemasukan');
                 let paymentRows = '';
                 if (kasPayments.length === 0) {
@@ -1515,7 +1600,7 @@
                 }
                 paymentTableKas.innerHTML = paymentRows;
 
-                // Expense table Kas
+                // Expense table
                 const kasExpenses = kasTransactions.filter(t => t.type === 'pengeluaran');
                 let expenseRows = '';
                 if (kasExpenses.length === 0) {
@@ -1562,7 +1647,7 @@
                 totalOutRekreasi.innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
                 balanceRekreasi.innerText = 'Rp ' + (totalIn - totalOut).toLocaleString('id-ID');
 
-                // Progress list Rekreasi
+                // Progress list
                 let html = '';
                 if (students.length === 0) {
                     html = '<p style="color:#999;">Belum ada siswa</p>';
@@ -1585,8 +1670,8 @@
                         html += `
                             <div class="progress-item">
                                 <span class="name">${s.name}</span>
-                                <div style="flex:1; display:flex; align-items:center; gap:12px;">
-                                    <div style="flex:1; height:8px; background:#e9edf2; border-radius:4px; overflow:hidden;">
+                                <div style="flex:1; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                    <div style="flex:1; min-width:100px; height:8px; background:#e9edf2; border-radius:4px; overflow:hidden;">
                                         <div style="height:100%; width:${Math.min((paid/target)*100, 100)}%; background:#9b59b6; border-radius:4px;"></div>
                                     </div>
                                     <span style="font-size:13px; font-weight:600; min-width:100px;">
@@ -1600,7 +1685,7 @@
                 }
                 progressListRekreasi.innerHTML = html;
 
-                // Payment table Rekreasi
+                // Payment table
                 const rekreasiPayments = rekreasiTransactions.filter(t => t.type === 'pemasukan');
                 let paymentRows = '';
                 if (rekreasiPayments.length === 0) {
@@ -1618,7 +1703,7 @@
                 }
                 paymentTableRekreasi.innerHTML = paymentRows;
 
-                // Expense table Rekreasi
+                // Expense table
                 const rekreasiExpenses = rekreasiTransactions.filter(t => t.type === 'pengeluaran');
                 let expenseRows = '';
                 if (rekreasiExpenses.length === 0) {
