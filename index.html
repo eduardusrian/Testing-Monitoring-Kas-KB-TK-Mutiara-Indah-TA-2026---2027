@@ -406,6 +406,10 @@
             border-radius: 20px;
             border: 1px solid #e9edf2;
             overflow-x: auto;
+            margin-bottom: 24px;
+        }
+        .table-wrap:last-child {
+            margin-bottom: 0;
         }
         table {
             width: 100%;
@@ -436,6 +440,16 @@
         .photo-thumb:hover {
             opacity: 0.85;
             transform: scale(1.02);
+        }
+
+        .table-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3b4a;
+            margin: 24px 0 12px 0;
+        }
+        .table-section-title:first-of-type {
+            margin-top: 0;
         }
 
         .modal {
@@ -702,6 +716,21 @@
         }
         .dashboard-title.kas-title .title-icon { color: #2a9d8f; }
         .dashboard-title.rekreasi-title .title-icon { color: #9b59b6; }
+        .method-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .method-cash {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .method-tf {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
     </style>
 </head>
 <body>
@@ -775,6 +804,17 @@
                     <div id="progressListKas"><div class="loading-text">Loading data siswa...</div></div>
                 </div>
 
+                <!-- Tabel Pemasukan Kas -->
+                <div class="table-section-title"><i class="fas fa-arrow-down" style="color:#2a9d8f;"></i> Riwayat Pemasukan Kas</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>Metode Pembayaran</th><th>Nominal</th></tr></thead>
+                        <tbody id="paymentTableKas"><tr><td colspan="4" class="loading-text">Loading data...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <!-- Tabel Pengeluaran Kas -->
+                <div class="table-section-title"><i class="fas fa-arrow-up" style="color:#e76f51;"></i> Riwayat Pengeluaran Kas</div>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>Tanggal</th><th>Item Pengeluaran</th><th>Nominal</th><th>Foto Bukti</th></tr></thead>
@@ -799,6 +839,17 @@
                     <div id="progressListRekreasi"><div class="loading-text">Loading data siswa...</div></div>
                 </div>
 
+                <!-- Tabel Pemasukan Rekreasi -->
+                <div class="table-section-title"><i class="fas fa-arrow-down" style="color:#9b59b6;"></i> Riwayat Pemasukan Rekreasi</div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Tanggal</th><th>Nama Siswa</th><th>Metode Pembayaran</th><th>Nominal</th></tr></thead>
+                        <tbody id="paymentTableRekreasi"><tr><td colspan="4" class="loading-text">Loading data...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <!-- Tabel Pengeluaran Rekreasi -->
+                <div class="table-section-title"><i class="fas fa-arrow-up" style="color:#e76f51;"></i> Riwayat Pengeluaran Rekreasi</div>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>Tanggal</th><th>Item Pengeluaran</th><th>Nominal</th><th>Foto Bukti</th></tr></thead>
@@ -985,12 +1036,14 @@
         const totalOutKas = document.getElementById('totalOutKas');
         const balanceKas = document.getElementById('balanceKas');
         const progressListKas = document.getElementById('progressListKas');
+        const paymentTableKas = document.getElementById('paymentTableKas');
         const expenseTableKas = document.getElementById('expenseTableKas');
 
         const totalInRekreasi = document.getElementById('totalInRekreasi');
         const totalOutRekreasi = document.getElementById('totalOutRekreasi');
         const balanceRekreasi = document.getElementById('balanceRekreasi');
         const progressListRekreasi = document.getElementById('progressListRekreasi');
+        const paymentTableRekreasi = document.getElementById('paymentTableRekreasi');
         const expenseTableRekreasi = document.getElementById('expenseTableRekreasi');
 
         const kategoriInput = document.getElementById('kategoriInput');
@@ -1035,7 +1088,6 @@
                     data.targetKas = parsed.targetKas || DEFAULT_TARGET_KAS;
                     data.targetRekreasi = parsed.targetRekreasi || DEFAULT_TARGET_REKREASI;
                 } else {
-                    // Generate dummy data with all students
                     generateDummyData();
                     saveData();
                 }
@@ -1055,11 +1107,9 @@
                 paidRekreasi: 0
             }));
 
-            // Generate transactions for Kas (SPP)
             const months = ['2026-08', '2026-09', '2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03', '2027-04', '2027-05'];
             let transId = 1;
             
-            // Some students have paid all 10 months, some partial
             const paymentStatus = {
                 'Adzriel': 10, 'Alkha': 10, 'Khalid': 8, 'Nazla': 10, 'Shafa': 6,
                 'Shena': 10, 'Jasmine': 7, 'Zela': 10, 'Lean': 5, 'Razkha': 9,
@@ -1075,6 +1125,7 @@
                         const nominal = MONTHLY_FEE;
                         totalPaid += nominal;
                         const date = months[i] + '-' + String(Math.floor(Math.random() * 20) + 10).padStart(2, '0');
+                        const method = i % 2 === 0 ? 'Cash' : 'TF';
                         data.transactions.push({
                             id: transId++,
                             type: 'pemasukan',
@@ -1082,8 +1133,8 @@
                             date: date,
                             student: studentName,
                             nominal: nominal,
-                            method: i % 2 === 0 ? 'Cash' : 'TF',
-                            bank: i % 2 === 0 ? '' : 'BCA',
+                            method: method,
+                            bank: method === 'TF' ? 'BCA' : '',
                             item: '',
                             photo: ''
                         });
@@ -1092,7 +1143,7 @@
                 }
             }
 
-            // Generate Rekreasi payments (some students)
+            // Generate Rekreasi payments
             const rekreasiPayments = {
                 'Adzriel': 150000, 'Alkha': 150000, 'Khalid': 100000, 'Nazla': 150000, 
                 'Shafa': 50000, 'Shena': 150000, 'Jasmine': 100000, 'Zela': 150000,
@@ -1105,6 +1156,7 @@
                 if (student && amount > 0) {
                     student.paidRekreasi = amount;
                     const date = '2027-01-' + String(Math.floor(Math.random() * 20) + 10).padStart(2, '0');
+                    const method = Math.random() > 0.5 ? 'Cash' : 'TF';
                     data.transactions.push({
                         id: transId++,
                         type: 'pemasukan',
@@ -1112,15 +1164,15 @@
                         date: date,
                         student: studentName,
                         nominal: amount,
-                        method: Math.random() > 0.5 ? 'Cash' : 'TF',
-                        bank: Math.random() > 0.5 ? 'BCA' : 'Mandiri',
+                        method: method,
+                        bank: method === 'TF' ? (Math.random() > 0.5 ? 'BCA' : 'Mandiri') : '',
                         item: '',
                         photo: ''
                     });
                 }
             }
 
-            // Generate some pengeluaran for Kas
+            // Generate pengeluaran Kas
             const kasExpenses = [
                 { date: '2026-08-15', item: 'ATK', nominal: 50000 },
                 { date: '2026-09-20', item: 'Konsumsi', nominal: 75000 },
@@ -1147,7 +1199,7 @@
                 });
             }
 
-            // Generate some pengeluaran for Rekreasi
+            // Generate pengeluaran Rekreasi
             const rekreasiExpenses = [
                 { date: '2026-09-25', item: 'Konsumsi', nominal: 75000 },
                 { date: '2026-10-30', item: 'Transport', nominal: 100000 },
@@ -1236,7 +1288,6 @@
             };
             data.transactions.push(newTrans);
             
-            // Update student paid based on category
             if (transaction.type === 'pemasukan' && transaction.student) {
                 const student = data.students.find(s => s.name === transaction.student);
                 if (student) {
@@ -1269,7 +1320,6 @@
             try {
                 const transactions = data.transactions || [];
                 
-                // Calculate Kas balance
                 const kasTransactions = transactions.filter(t => t.category === 'kas');
                 let kasIn = 0, kasOut = 0;
                 kasTransactions.forEach(t => {
@@ -1280,7 +1330,6 @@
                 landingSaldoKas.innerText = 'Rp ' + kasBalance.toLocaleString('id-ID');
                 landingSaldoKas.className = 'card-amount ' + (kasBalance >= 0 ? 'positive' : 'negative');
 
-                // Calculate Rekreasi balance
                 const rekreasiTransactions = transactions.filter(t => t.category === 'rekreasi');
                 let rekreasiIn = 0, rekreasiOut = 0;
                 rekreasiTransactions.forEach(t => {
@@ -1300,7 +1349,6 @@
                 const students = data.students || [];
                 const transactions = data.transactions || [];
 
-                // Filter by category 'kas'
                 const kasTransactions = transactions.filter(t => t.category === 'kas');
                 let totalIn = 0, totalOut = 0;
                 kasTransactions.forEach(t => {
@@ -1312,7 +1360,7 @@
                 totalOutKas.innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
                 balanceKas.innerText = 'Rp ' + (totalIn - totalOut).toLocaleString('id-ID');
 
-                // Progress list for Kas
+                // Progress list Kas
                 let html = '';
                 if (students.length === 0) {
                     html = '<p style="color:#999;">Belum ada siswa</p>';
@@ -1356,18 +1404,41 @@
                 }
                 progressListKas.innerHTML = html;
 
-                // Expense table for Kas
-                const expenses = kasTransactions.filter(t => t.type === 'pengeluaran');
-                let rows = '';
-                if (expenses.length === 0) {
-                    rows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pengeluaran</td></tr>`;
+                // Payment table Kas (pemasukan)
+                const kasPayments = kasTransactions.filter(t => t.type === 'pemasukan');
+                let paymentRows = '';
+                if (kasPayments.length === 0) {
+                    paymentRows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pemasukan</td></tr>`;
                 } else {
-                    expenses.forEach(e => {
-                        const photoHtml = e.photo ? `<img src="${e.photo}" class="photo-thumb" data-photo="${e.photo}" />` : '<span style="color:#999;">tidak ada</span>';
-                        rows += `<tr><td>${e.date}</td><td>${e.item || '-'}</td><td>Rp ${e.nominal.toLocaleString('id-ID')}</td><td>${photoHtml}</td></tr>`;
+                    kasPayments.forEach(p => {
+                        const methodClass = p.method === 'Cash' ? 'method-cash' : 'method-tf';
+                        paymentRows += `<tr>
+                            <td>${p.date}</td>
+                            <td><strong>${p.student}</strong></td>
+                            <td><span class="method-badge ${methodClass}">${p.method}</span></td>
+                            <td>Rp ${p.nominal.toLocaleString('id-ID')}</td>
+                        </tr>`;
                     });
                 }
-                expenseTableKas.innerHTML = rows;
+                paymentTableKas.innerHTML = paymentRows;
+
+                // Expense table Kas (pengeluaran)
+                const kasExpenses = kasTransactions.filter(t => t.type === 'pengeluaran');
+                let expenseRows = '';
+                if (kasExpenses.length === 0) {
+                    expenseRows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pengeluaran</td></tr>`;
+                } else {
+                    kasExpenses.forEach(e => {
+                        const photoHtml = e.photo ? `<img src="${e.photo}" class="photo-thumb" data-photo="${e.photo}" />` : '<span style="color:#999;">tidak ada</span>';
+                        expenseRows += `<tr>
+                            <td>${e.date}</td>
+                            <td>${e.item || '-'}</td>
+                            <td>Rp ${e.nominal.toLocaleString('id-ID')}</td>
+                            <td>${photoHtml}</td>
+                        </tr>`;
+                    });
+                }
+                expenseTableKas.innerHTML = expenseRows;
 
                 document.querySelectorAll('#expenseTableKas .photo-thumb').forEach(img => {
                     img.addEventListener('click', function() {
@@ -1387,7 +1458,6 @@
                 const students = data.students || [];
                 const transactions = data.transactions || [];
 
-                // Filter by category 'rekreasi'
                 const rekreasiTransactions = transactions.filter(t => t.category === 'rekreasi');
                 let totalIn = 0, totalOut = 0;
                 rekreasiTransactions.forEach(t => {
@@ -1399,7 +1469,7 @@
                 totalOutRekreasi.innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
                 balanceRekreasi.innerText = 'Rp ' + (totalIn - totalOut).toLocaleString('id-ID');
 
-                // Progress list for Rekreasi
+                // Progress list Rekreasi
                 let html = '';
                 if (students.length === 0) {
                     html = '<p style="color:#999;">Belum ada siswa</p>';
@@ -1437,18 +1507,41 @@
                 }
                 progressListRekreasi.innerHTML = html;
 
-                // Expense table for Rekreasi
-                const expenses = rekreasiTransactions.filter(t => t.type === 'pengeluaran');
-                let rows = '';
-                if (expenses.length === 0) {
-                    rows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pengeluaran</td></tr>`;
+                // Payment table Rekreasi (pemasukan)
+                const rekreasiPayments = rekreasiTransactions.filter(t => t.type === 'pemasukan');
+                let paymentRows = '';
+                if (rekreasiPayments.length === 0) {
+                    paymentRows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pemasukan</td></tr>`;
                 } else {
-                    expenses.forEach(e => {
-                        const photoHtml = e.photo ? `<img src="${e.photo}" class="photo-thumb" data-photo="${e.photo}" />` : '<span style="color:#999;">tidak ada</span>';
-                        rows += `<tr><td>${e.date}</td><td>${e.item || '-'}</td><td>Rp ${e.nominal.toLocaleString('id-ID')}</td><td>${photoHtml}</td></tr>`;
+                    rekreasiPayments.forEach(p => {
+                        const methodClass = p.method === 'Cash' ? 'method-cash' : 'method-tf';
+                        paymentRows += `<tr>
+                            <td>${p.date}</td>
+                            <td><strong>${p.student}</strong></td>
+                            <td><span class="method-badge ${methodClass}">${p.method}</span></td>
+                            <td>Rp ${p.nominal.toLocaleString('id-ID')}</td>
+                        </tr>`;
                     });
                 }
-                expenseTableRekreasi.innerHTML = rows;
+                paymentTableRekreasi.innerHTML = paymentRows;
+
+                // Expense table Rekreasi (pengeluaran)
+                const rekreasiExpenses = rekreasiTransactions.filter(t => t.type === 'pengeluaran');
+                let expenseRows = '';
+                if (rekreasiExpenses.length === 0) {
+                    expenseRows = `<tr><td colspan="4" style="text-align:center;color:#999;">Belum ada pengeluaran</td></tr>`;
+                } else {
+                    rekreasiExpenses.forEach(e => {
+                        const photoHtml = e.photo ? `<img src="${e.photo}" class="photo-thumb" data-photo="${e.photo}" />` : '<span style="color:#999;">tidak ada</span>';
+                        expenseRows += `<tr>
+                            <td>${e.date}</td>
+                            <td>${e.item || '-'}</td>
+                            <td>Rp ${e.nominal.toLocaleString('id-ID')}</td>
+                            <td>${photoHtml}</td>
+                        </tr>`;
+                    });
+                }
+                expenseTableRekreasi.innerHTML = expenseRows;
 
                 document.querySelectorAll('#expenseTableRekreasi .photo-thumb').forEach(img => {
                     img.addEventListener('click', function() {
@@ -1533,12 +1626,10 @@
             landingView.style.display = 'none';
             detailView.classList.add('visible');
             
-            // Show only the selected dashboard
             singleDashboards.forEach(d => d.classList.remove('active'));
             const targetDashboard = document.getElementById('single-dashboard-' + category);
             if (targetDashboard) targetDashboard.classList.add('active');
             
-            // Render the selected dashboard
             if (category === 'kas') {
                 renderDashboardKas();
             } else if (category === 'rekreasi') {
@@ -1582,7 +1673,6 @@
         }
 
         // ============ EVENT LISTENERS ============
-        // Landing cards click
         landingCards.forEach(card => {
             card.addEventListener('click', function() {
                 const category = this.dataset.category;
@@ -1590,12 +1680,10 @@
             });
         });
 
-        // Back to landing
         backToLanding.addEventListener('click', function() {
             showLandingView();
         });
 
-        // Navigation
         navItems.forEach(item => {
             item.addEventListener('click', function() {
                 const pageId = this.dataset.page;
@@ -1615,7 +1703,6 @@
                     if (isDetailView) {
                         detailView.classList.add('visible');
                         landingView.style.display = 'none';
-                        // Restore the active dashboard
                         const targetDashboard = document.getElementById('single-dashboard-' + activeCategory);
                         if (targetDashboard) {
                             singleDashboards.forEach(d => d.classList.remove('active'));
